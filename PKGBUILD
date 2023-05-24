@@ -99,7 +99,7 @@ build() {
   # Gems will be installed into vendor/bundle
   bundle-2.7 config build.gpgme --use-system-libraries  # See https://bugs.archlinux.org/task/63654
   bundle-2.7 config force_ruby_platform true # some native gems are not available for newer ruby
-  bundle-2.7 install --jobs=$(nproc) --no-cache --deployment --without development test aws kerberos
+  BUNDLER_CHECKSUM_VERIFICATION_OPT_IN=1  bundle-2.7 install --jobs=$(nproc) --no-cache --deployment --without development test aws kerberos
 
   export CGO_CPPFLAGS="${CPPFLAGS}"
   export CGO_CFLAGS="${CFLAGS}"
