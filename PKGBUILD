@@ -9,195 +9,209 @@
 # Contributor: loqs <bugs-archlinux@entropy-collector.net>
 
 pkgname=gitlab
-pkgver=16.0.0
+pkgver=16.0.1
 pkgrel=1
-pkgdesc="Project management and code hosting application"
-arch=('x86_64')
-url="https://gitlab.com/gitlab-org/gitlab-foss"
-license=('MIT')
-options=(!buildflags !debug)
-depends=('ruby2.7' 'git' 'perl-image-exiftool' 'gitlab-gitaly' 'openssh' 'redis' 'libxslt' 'icu' 're2' 'http-parser' 'nodejs' 'openssl')
-makedepends=('cmake' 'postgresql' 'yarn' 'go' 'nodejs')
+pkgdesc='Project management and code hosting application'
+arch=(x86_64)
+url='https://gitlab.com/gitlab-org/gitlab-foss'
+license=(MIT)
+depends=(git
+         gitlab-gitaly
+         http-parser
+         icu
+         libxslt
+         nodejs
+         openssh
+         openssl
+         perl-image-exiftool
+         re2
+         redis
+         ruby2.7)
+makedepends=(cmake
+             go
+             nodejs
+             postgresql
+             yarn)
 optdepends=('postgresql: database backend'
             'python-docutils: reStructuredText markup language support'
             'smtp-server: mail server in order to receive mail notifications')
-backup=("etc/webapps/gitlab/database.yml"
-        "etc/webapps/gitlab/gitlab.yml"
-        "etc/webapps/gitlab/resque.yml"
-        "etc/webapps/gitlab/puma.rb"
-        "etc/webapps/gitlab/smtp_settings.rb"
-        "etc/logrotate.d/gitlab")
-source=(git+https://gitlab.com/gitlab-org/gitlab-foss.git#tag=v$pkgver
-        https://gitlab.com/gitlab-org/gitlab/-/commit/5b9062832119599bf31ecca35e8fea74a9c1fe24.patch
-        gitlab-16.0.0-puma_worker_killer-gem-checksum.patch
-        configs.patch
-        environment
-        gitlab-puma.service
-        gitlab-sidekiq.service
-        gitlab-backup.service
-        gitlab-mailroom.service
-        gitlab-workhorse.service
-        gitlab-backup.timer
-        gitlab.target
-        gitlab.tmpfiles.d
-        gitlab.logrotate)
-provides=('gitlab-workhorse') # FS78036
-conflicts=('gitlab-workhorse')
-replaces=('gitlab-workhorse')
-install='gitlab.install'
-sha512sums=('SKIP'
-            '8a87dba84a778aa2f0f1971f1c3ba8f7a7df961303bb052527958903762c9f3c327260f1995d76d05a264872fa40b946358e9939027185f98f62884cc98a40ae'
-            'dc43cd259f91fb01493abe9edca92c536d74ec0ea5b964019bac2671273d836c905591b3031244a58c5736b1e423d2f066694970c0632a8e1bde40c0cc05ec3a'
-            'eccb0e1ca6601f7b9a6d102e63cc082b7c9defaa698f14ff5c2f01179f723dcbd34c62424d24202bf05cbf9468a8f787bc9f0fd6f76df79e42bc805bf40f3e03'
-            '5b1ca2958f03a5baf1c5576a1568072e8ed749e2d15745ecbcc4860d2dbd543f2f3ed077e8d87afac2670c9436b19fe498217b49916d56a4e31fb9811aeb9067'
-            '451a030940f124bccd6d29c1924861b361d52db32cff6e745c144286c2afc7065e117f825721145ed2dd4406f5bcfa97e228a80b968aaa9a675613b71b776eba'
-            '419848c668928276620b5229e457a39e0ed7e111f1da68a30c3e0ae1a644af1c869b004b35435ccec4ddcdf6cf7418b1ab71e6e2ee8a2c861c6625c8bfd908f6'
-            'd86e16747ad79f514ce180646c68bec8b6fa61764b2b14b1621db998f48955c3fb81f4e19ecb0fbab9d603dd25d95929e6d72a473652608373e6551f26244738'
-            'f8067d1ee444a50dc9b2ed871974225ad521c310eb191e075adb0e45e47168da7d16b92f2e40d7ce755041dd4426a05f0ad1385392b4db526aeaf8a638eb024f'
-            '893527f270179fc78ff60e33f0b44abd984d1e9859dd5bf59fea77245ddd4c1c252d2c7882719366944d0f9341a90b5e077470b15afcc3df419b0d0a9f2e6d56'
-            'c76d634647336aaf157bc66ba094a363e971c0d275875a7df4521819147f54cd4c709eb8e024cdac9e900d99167e8a78a222587e7292e915573ef29060e6ec21'
-            '879be339148123e32b58a5669fdd3d3bb8b5d711326cb618f95b1680a6ac3a83c85d8862f2691b352fa26c95e4764dbb827856e22a3e2b9e4a76c13fe42864b5'
-            'abacbff0d7be918337a17b56481c84e6bf3eddd9551efe78ba9fb74337179e95c9b60f41c49f275e05074a4074a616be36fa208a48fc12d5b940f0554fbd89c3'
-            '88e199d2f63e4f235930c35c6dfde80e6010e590907bd4de0af1fbfe6d5491ff56845aefcfe8edefa707712bd84fef96880655747b8bfb949ceeadc0456b0121')
+backup=("etc/webapps/$pkgname/database.yml"
+        "etc/webapps/$pkgname/gitlab.yml"
+        "etc/webapps/$pkgname/resque.yml"
+        "etc/webapps/$pkgname/puma.rb"
+        "etc/webapps/$pkgname/smtp_settings.rb"
+        "etc/logrotate.d/$pkgname")
+options=(!buildflags !debug)
+source=("git+$url.git#tag=v$pkgver"
+        "${url%-foss}/-/commit/5b9062832119599bf31ecca35e8fea74a9c1fe24.patch"
+        "$pkgname-16.0.0-puma_worker_killer-gem-checksum.patch"
+        "$pkgname-configs.patch"
+        "$pkgname-environment"
+        "$pkgname-puma.service"
+        "$pkgname-sidekiq.service"
+        "$pkgname-backup.service"
+        "$pkgname-mailroom.service"
+        "$pkgname-workhorse.service"
+        "$pkgname-backup.timer"
+        "$pkgname.target"
+        "$pkgname.tmpfiles.d"
+        "$pkgname.logrotate")
+provides=(gitlab-workhorse) # FS78036
+conflicts=(gitlab-workhorse)
+replaces=(gitlab-workhorse)
+install=gitlab.install
+sha256sums=('SKIP'
+            '56d90f25e158de823d3cb05b3164891cbe84169e82a5f4e4e7cde19f9c770063'
+            'c62aeafd032cba7a3c318a76a16f03b80d60ad4db40702573604638e46b7ed65'
+            '1888a01cf85d1b5ff719549225f81f4975e1932ac5b865d605fb47992c61cca9'
+            '8cc4d933743906b4213b8ea8d8c5a62535e27e4073f73581a5dad40078dde000'
+            'f1cec302a551de5e06a2651a1d24f9697fa4f8be08eede65af6b4c5774476591'
+            '5531cf40d749dd039eb358c19563a4b4aa9829887c6cb0bacaab9e5a3260d7cf'
+            'ae6617b3a0d0808684cb1fff9cfbfa46f6f847baba61fdfa7ebf458cb2890e6f'
+            'ff4496eaff0fb47aa0fa10ca08a08257291566a8dbe0566570f493053da04f6b'
+            '7581d07e650c112a06af4a52ab9cf3bf0deb11564d734d5adabcdb537140f1c0'
+            '869b3e682e9fb26551a19c0cd0b200a6fdb594396f325e237d58e1a8a8a96f73'
+            '6c96a5d20c03bd626d9408cb1e41ab131d67610be586475af17c1e52e27ec697'
+            '84614a2bfbd734f09c2c91531dd3c13e795186b50c0780a120c8e5bc2a892607'
+            '13e4588b62ebaa6b410c2192cafbd2b9f2c99b8fff7b02782c2968c8256f762a')
 
-
-_appdir="/usr/share/webapps/gitlab" # the app source code location
-_etcdir="/etc/webapps/gitlab"
-_datadir="/var/lib/gitlab" # directory with gitlab data and it also $HOME for 'gitlab' user
-_logdir="/var/log/gitlab"
+_appdir=/usr/share/webapps/gitlab # the app source code location
+_etcdir=/etc/webapps/gitlab
+_datadir=/var/lib/gitlab # directory with gitlab data and it also $HOME for 'gitlab' user
+_logdir=/var/log/gitlab
 
 prepare() {
-  cd gitlab-foss
-  # Update grpc gem to v1.54.2 needed to build with gcc 13
-  patch -Np1 -i ../5b9062832119599bf31ecca35e8fea74a9c1fe24.patch
-  patch -Np1 -i ../gitlab-16.0.0-puma_worker_killer-gem-checksum.patch
+	cd gitlab-foss
+	# Update grpc gem to v1.54.2 needed to build with gcc 13
+	patch -Np1 -i ../5b9062832119599bf31ecca35e8fea74a9c1fe24.patch
+	patch -Np1 -i ../$pkgname-16.0.0-puma_worker_killer-gem-checksum.patch
 
-  # GitLab tries to read its revision information from a file.
-  git rev-parse --short HEAD > REVISION
+	# GitLab tries to read its revision information from a file.
+	git rev-parse --short HEAD > REVISION
 
-  patch -p1 < ../configs.patch
-  # '/home/git' path in the config files indicates a default path that need to be adjusted
-  grep -FqR '/home/git' config || exit 1
+	patch -p1 -i ../$pkgname-configs.patch
+	# '/home/git' path in the config files indicates a default path that need to be adjusted
+	grep -FqR '/home/git' config || exit 1
 
-  cp config/gitlab.yml.example config/gitlab.yml
-  cp config/database.yml.postgresql config/database.yml
-  cp config/puma.rb.example config/puma.rb
-  cp config/resque.yml.example config/resque.yml
-  cp config/initializers/smtp_settings.rb.sample config/initializers/smtp_settings.rb
+	cp config/gitlab.yml.example config/gitlab.yml
+	cp config/database.yml.postgresql config/database.yml
+	cp config/puma.rb.example config/puma.rb
+	cp config/resque.yml.example config/resque.yml
+	cp config/initializers/smtp_settings.rb.sample config/initializers/smtp_settings.rb
 
-  echo "Setting up systemd service files ..."
-  for service_file in gitlab-sidekiq.service gitlab-puma.service gitlab.logrotate gitlab-backup.service gitlab-mailroom.service; do
-    sed -i "s|<DATADIR>|${_datadir}|g" "${srcdir}/${service_file}"
-    sed -i "s|<APPDIR>|${_appdir}|g" "${srcdir}/${service_file}"
-    sed -i "s|<LOGDIR>|${_logdir}|g" "${srcdir}/${service_file}"
-  done
+	echo "Setting up systemd service files ..."
+	for service_file in gitlab-sidekiq.service gitlab-puma.service gitlab.logrotate gitlab-backup.service gitlab-mailroom.service; do
+		sed -i "s|<DATADIR>|${_datadir}|g" "${srcdir}/${service_file}"
+		sed -i "s|<APPDIR>|${_appdir}|g" "${srcdir}/${service_file}"
+		sed -i "s|<LOGDIR>|${_logdir}|g" "${srcdir}/${service_file}"
+	done
 }
 
 build() {
-  cd gitlab-foss
+	cd gitlab-foss
 
-  echo "Fetching bundled gems..."
-  # Gems will be installed into vendor/bundle
-  bundle-2.7 config build.gpgme --use-system-libraries  # See https://bugs.archlinux.org/task/63654
-  bundle-2.7 config force_ruby_platform true # some native gems are not available for newer ruby
-  BUNDLER_CHECKSUM_VERIFICATION_OPT_IN=1  bundle-2.7 install --jobs=$(nproc) --no-cache --deployment --without development test aws kerberos
+	echo "Fetching bundled gems..."
+	# Gems will be installed into vendor/bundle
+	bundle-2.7 config build.gpgme --use-system-libraries # See https://bugs.archlinux.org/task/63654
+	bundle-2.7 config force_ruby_platform true # some native gems are not available for newer ruby
+	BUNDLER_CHECKSUM_VERIFICATION_OPT_IN=1 bundle-2.7 install --jobs=$(nproc) --no-cache --deployment --without development test aws kerberos
 
-  export CGO_CPPFLAGS="${CPPFLAGS}"
-  export CGO_CFLAGS="${CFLAGS}"
-  export CGO_CXXFLAGS="${CXXFLAGS}"
-  export CGO_LDFLAGS="${LDFLAGS}"
-  export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
-  make -C workhorse
+	export CGO_CPPFLAGS="${CPPFLAGS}"
+	export CGO_CFLAGS="${CFLAGS}"
+	export CGO_CXXFLAGS="${CXXFLAGS}"
+	export CGO_LDFLAGS="${LDFLAGS}"
+	export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
+	make -C workhorse
 
-  yarn install --production --pure-lockfile
-  bundle-2.7 exec rake gettext:compile RAILS_ENV=production NODE_ENV=production USE_DB=false SKIP_STORAGE_VALIDATION=true NODE_OPTIONS="--max_old_space_size=3584"
-  bundle-2.7 exec rake gitlab:assets:compile RAILS_ENV=production NODE_ENV=production USE_DB=false SKIP_STORAGE_VALIDATION=true NODE_OPTIONS="--max_old_space_size=3584"
+	yarn install --production --pure-lockfile
+	bundle-2.7 exec rake gettext:compile RAILS_ENV=production NODE_ENV=production USE_DB=false SKIP_STORAGE_VALIDATION=true NODE_OPTIONS="--max_old_space_size=3584"
+	bundle-2.7 exec rake gitlab:assets:compile RAILS_ENV=production NODE_ENV=production USE_DB=false SKIP_STORAGE_VALIDATION=true NODE_OPTIONS="--max_old_space_size=3584"
 }
 
 package() {
-  depends+=('gitlab-shell')
+	depends+=('gitlab-shell')
 
-  cd gitlab-foss
+	cd gitlab-foss
 
-  install -d "${pkgdir}/usr/share/webapps"
+	install -d "${pkgdir}/usr/share/webapps"
 
-  cp -r "${srcdir}"/gitlab-foss "${pkgdir}${_appdir}"
-  # Remove unneeded directories: node_modules is only needed during build
-  rm -r "${pkgdir}${_appdir}/node_modules"
-  # https://gitlab.com/gitlab-org/omnibus-gitlab/blob/194cf8f12e51c26980c09de6388bbd08409e1209/config/software/gitlab-rails.rb#L179
-  for dir in spec qa rubocop app/assets vendor/assets; do
-    rm -r "${pkgdir}${_appdir}/${dir}"
-  done
+	cp -r "${srcdir}"/gitlab-foss "${pkgdir}${_appdir}"
+	# Remove unneeded directories: node_modules is only needed during build
+	rm -r "${pkgdir}${_appdir}/node_modules"
+	# https://gitlab.com/gitlab-org/omnibus-gitlab/blob/194cf8f12e51c26980c09de6388bbd08409e1209/config/software/gitlab-rails.rb#L179
+	for dir in spec qa rubocop app/assets vendor/assets; do
+		rm -r "${pkgdir}${_appdir}/${dir}"
+	done
 
-  chown -R root:root "${pkgdir}${_appdir}"
-  chmod 755 "${pkgdir}${_appdir}"
+	chown -R root:root "${pkgdir}${_appdir}"
+	chmod 755 "${pkgdir}${_appdir}"
 
-  install -Dm755 "workhorse/gitlab-workhorse" "${pkgdir}/usr/bin/gitlab-workhorse"
-  install -Dm755 "workhorse/gitlab-zip-cat" "${pkgdir}/usr/bin/gitlab-zip-cat"
-  install -Dm755 "workhorse/gitlab-zip-metadata" "${pkgdir}/usr/bin/gitlab-zip-metadata"
+	install -Dm755 "workhorse/gitlab-workhorse" "${pkgdir}/usr/bin/gitlab-workhorse"
+	install -Dm755 "workhorse/gitlab-zip-cat" "${pkgdir}/usr/bin/gitlab-zip-cat"
+	install -Dm755 "workhorse/gitlab-zip-metadata" "${pkgdir}/usr/bin/gitlab-zip-metadata"
 
-  install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}"
-  install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/satellites"
-  install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/shared/"{,artifacts,lfs-objects}
-  install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/builds"
-  install -dm700 -o 105 -g 105 "${pkgdir}${_datadir}/uploads"
-  install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/backups"
-  install -dm755 -o 105 -g 105 "${pkgdir}${_etcdir}"
-  install -dm755 -o 105 -g 105 "${pkgdir}${_logdir}"
-  install -dm755 "${pkgdir}/usr/share/doc/gitlab"
+	install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}"
+	install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/satellites"
+	install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/shared/"{,artifacts,lfs-objects}
+	install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/builds"
+	install -dm700 -o 105 -g 105 "${pkgdir}${_datadir}/uploads"
+	install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/backups"
+	install -dm755 -o 105 -g 105 "${pkgdir}${_etcdir}"
+	install -dm755 -o 105 -g 105 "${pkgdir}${_logdir}"
+	install -dm755 "${pkgdir}/usr/share/doc/gitlab"
 
-  rm -r "${pkgdir}${_appdir}"/{.git,builds,tmp,log,shared}
+	rm -r "${pkgdir}${_appdir}"/{.git,builds,tmp,log,shared}
 
-  # Rails app hardcodes/configures by default that data is stored under $_appdir
-  # Create symlinks that point to data directories under /var
-  ln -fs "${_logdir}" "${pkgdir}${_appdir}/log"
-  ln -fs "${_datadir}/builds" "${pkgdir}${_appdir}/builds"
-  ln -fs "${_datadir}/uploads" "${pkgdir}${_appdir}/public/uploads"
-  ln -fs "${_datadir}/shared" "${pkgdir}${_appdir}/shared"
-  # The path to backups is configured in gitlab.yml, but the gitlab:backup rake
-  # task writes a PID file in this directory (the path is hardcoded in
-  # /usr/share/webapps/gitlab/lib/tasks/gitlab/backup.rake).
-  # See https://bugs.archlinux.org/task/76630
-  ln -fs /var/tmp "${pkgdir}${_appdir}/tmp"
+	# Rails app hardcodes/configures by default that data is stored under $_appdir
+	# Create symlinks that point to data directories under /var
+	ln -fs "${_logdir}" "${pkgdir}${_appdir}/log"
+	ln -fs "${_datadir}/builds" "${pkgdir}${_appdir}/builds"
+	ln -fs "${_datadir}/uploads" "${pkgdir}${_appdir}/public/uploads"
+	ln -fs "${_datadir}/shared" "${pkgdir}${_appdir}/shared"
+	# The path to backups is configured in gitlab.yml, but the gitlab:backup rake
+	# task writes a PID file in this directory (the path is hardcoded in
+	# /usr/share/webapps/gitlab/lib/tasks/gitlab/backup.rake).
+	# See https://bugs.archlinux.org/task/76630
+	ln -fs /var/tmp "${pkgdir}${_appdir}/tmp"
 
-  # TODO: workhorse and shell secret files are the application data and should be stored under /var/lib/gitlab
-  ln -fs "${_etcdir}/gitlab_workhorse_secret" "${pkgdir}${_appdir}/.gitlab_workhorse_secret"
-  ln -fs /etc/webapps/gitlab-shell/secret "${pkgdir}${_appdir}/.gitlab_shell_secret"
+	# TODO: workhorse and shell secret files are the application data and should be stored under /var/lib/gitlab
+	ln -fs "${_etcdir}/gitlab_workhorse_secret" "${pkgdir}${_appdir}/.gitlab_workhorse_secret"
+	ln -fs /etc/webapps/gitlab-shell/secret "${pkgdir}${_appdir}/.gitlab_shell_secret"
 
-  # Install config files
-  for config_file in gitlab.yml database.yml puma.rb resque.yml; do
-    mv "config/${config_file}" "${pkgdir}${_etcdir}/"
-    # TODO: configure rails app to use configs right from /etc
-    ln -fs "${_etcdir}/${config_file}" "${pkgdir}${_appdir}/config/"
-  done
-  mv "config/initializers/smtp_settings.rb" "${pkgdir}${_etcdir}/"
-  ln -fs "${_etcdir}/smtp_settings.rb" "${pkgdir}${_appdir}/config/initializers/smtp_settings.rb"
+	# Install config files
+	for config_file in gitlab.yml database.yml puma.rb resque.yml; do
+		mv "config/${config_file}" "${pkgdir}${_etcdir}/"
+		# TODO: configure rails app to use configs right from /etc
+		ln -fs "${_etcdir}/${config_file}" "${pkgdir}${_appdir}/config/"
+	done
+	mv "config/initializers/smtp_settings.rb" "${pkgdir}${_etcdir}/"
+	ln -fs "${_etcdir}/smtp_settings.rb" "${pkgdir}${_appdir}/config/initializers/smtp_settings.rb"
 
-  # Install secrets symlink
-  # TODO: ruby uses _appdir to load config files. Figure out if we can load files directly from /etc
-  ln -fs "${_etcdir}/secrets.yml" "${pkgdir}${_appdir}/config/secrets.yml"
+	# Install secrets symlink
+	# TODO: ruby uses _appdir to load config files. Figure out if we can load files directly from /etc
+	ln -fs "${_etcdir}/secrets.yml" "${pkgdir}${_appdir}/config/secrets.yml"
 
-  # files with passwords/secrets are set world-unreadable
-  for secret_file in smtp_settings.rb; do
-    chmod 660 "${pkgdir}${_etcdir}/${secret_file}"
-    # TODO: should we just leave the secret files root owned?
-    chown root:105 "${pkgdir}${_etcdir}/${secret_file}"
-  done
+	# files with passwords/secrets are set world-unreadable
+	for secret_file in smtp_settings.rb; do
+		chmod 660 "${pkgdir}${_etcdir}/${secret_file}"
+		# TODO: should we just leave the secret files root owned?
+		chown root:105 "${pkgdir}${_etcdir}/${secret_file}"
+	done
 
-  install -Dm644 "${srcdir}/environment" "${pkgdir}${_appdir}"
+	install -Dm644 "${srcdir}/$pkgname-environment" "${pkgdir}${_appdir}/environment"
 
-  # Install license and help files
-  mv README.md MAINTENANCE.md CONTRIBUTING.md CHANGELOG.md PROCESS.md VERSION config/*.{example,postgresql} "${pkgdir}/usr/share/doc/gitlab"
-  install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/gitlab/LICENSE"
+	# Install license and help files
+	mv README.md MAINTENANCE.md CONTRIBUTING.md CHANGELOG.md PROCESS.md VERSION config/*.{example,postgresql} "${pkgdir}/usr/share/doc/gitlab"
+	install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/gitlab/LICENSE"
 
-  # TODO: structure.sql looks more like an application data and should be stored under /var/lib/gitlab
-  chown 105:105 "${pkgdir}${_appdir}/db/structure.sql"
+	# TODO: structure.sql looks more like an application data and should be stored under /var/lib/gitlab
+	chown 105:105 "${pkgdir}${_appdir}/db/structure.sql"
 
-  # Install systemd service files
-  for service_file in gitlab-puma.service gitlab-sidekiq.service gitlab-backup.service gitlab-backup.timer gitlab.target gitlab-mailroom.service gitlab-workhorse.service; do
-    install -Dm644 "${srcdir}/${service_file}" "${pkgdir}/usr/lib/systemd/system/${service_file}"
-  done
+	# Install systemd service files
+	for service_file in gitlab-puma.service gitlab-sidekiq.service gitlab-backup.service gitlab-backup.timer gitlab.target gitlab-mailroom.service gitlab-workhorse.service; do
+		install -Dm644 "${srcdir}/${service_file}" "${pkgdir}/usr/lib/systemd/system/${service_file}"
+	done
 
-  install -Dm644 "${srcdir}/gitlab.tmpfiles.d" "${pkgdir}/usr/lib/tmpfiles.d/gitlab.conf"
-  install -Dm644 "${srcdir}/gitlab.logrotate" "${pkgdir}/etc/logrotate.d/gitlab"
+	install -Dm644 "${srcdir}/gitlab.tmpfiles.d" "${pkgdir}/usr/lib/tmpfiles.d/gitlab.conf"
+	install -Dm644 "${srcdir}/gitlab.logrotate" "${pkgdir}/etc/logrotate.d/gitlab"
 }
