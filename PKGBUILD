@@ -9,7 +9,7 @@
 # Contributor: loqs <bugs-archlinux@entropy-collector.net>
 
 pkgname=gitlab
-pkgver=15.11.6
+pkgver=16.0.0
 pkgrel=1
 pkgdesc="Project management and code hosting application"
 arch=('x86_64')
@@ -28,9 +28,9 @@ backup=("etc/webapps/gitlab/database.yml"
         "etc/webapps/gitlab/smtp_settings.rb"
         "etc/logrotate.d/gitlab")
 source=(git+https://gitlab.com/gitlab-org/gitlab-foss.git#tag=v$pkgver
-        https://gitlab.com/gitlab-org/gitlab/-/commit/c971125953ed43e6014fafe05bbade6faa7a2b6d.patch
+        https://gitlab.com/gitlab-org/gitlab/-/commit/5b9062832119599bf31ecca35e8fea74a9c1fe24.patch
+        gitlab-16.0.0-puma_worker_killer-gem-checksum.patch
         configs.patch
-        fixes.patch
         environment
         gitlab-puma.service
         gitlab-sidekiq.service
@@ -46,9 +46,9 @@ conflicts=('gitlab-workhorse')
 replaces=('gitlab-workhorse')
 install='gitlab.install'
 sha512sums=('SKIP'
-            '1b42e414bcfd93a103db4e3fd14e792ff0704d5d73f206fa11612ef91ac68df64cdfed498aa819e15820cdcc967a3ffe0d9b55fb92da846ccf55c3c59e7c6d60'
-            '504ab3130f8465521e0eeca8a9885ad04bec01933f71637cd439faaa5b0be783a3e8f48f0337d41e36f2de40d94b3771747684bb3eada63a073f5f9c1d38ad22'
-            '7384a7cb995832be3643e1f8b16f9454c6ef04ff1e0dc1a3aed3ad849d11d0be7f573c024c4d867d69e726fceccea1a58c9c3074ef166291b8357b3fc30922a8'
+            '8a87dba84a778aa2f0f1971f1c3ba8f7a7df961303bb052527958903762c9f3c327260f1995d76d05a264872fa40b946358e9939027185f98f62884cc98a40ae'
+            'dc43cd259f91fb01493abe9edca92c536d74ec0ea5b964019bac2671273d836c905591b3031244a58c5736b1e423d2f066694970c0632a8e1bde40c0cc05ec3a'
+            'eccb0e1ca6601f7b9a6d102e63cc082b7c9defaa698f14ff5c2f01179f723dcbd34c62424d24202bf05cbf9468a8f787bc9f0fd6f76df79e42bc805bf40f3e03'
             '5b1ca2958f03a5baf1c5576a1568072e8ed749e2d15745ecbcc4860d2dbd543f2f3ed077e8d87afac2670c9436b19fe498217b49916d56a4e31fb9811aeb9067'
             '451a030940f124bccd6d29c1924861b361d52db32cff6e745c144286c2afc7065e117f825721145ed2dd4406f5bcfa97e228a80b968aaa9a675613b71b776eba'
             '419848c668928276620b5229e457a39e0ed7e111f1da68a30c3e0ae1a644af1c869b004b35435ccec4ddcdf6cf7418b1ab71e6e2ee8a2c861c6625c8bfd908f6'
@@ -68,13 +68,13 @@ _logdir="/var/log/gitlab"
 
 prepare() {
   cd gitlab-foss
+  # Update grpc gem to v1.54.2 needed to build with gcc 13
+  patch -Np1 -i ../5b9062832119599bf31ecca35e8fea74a9c1fe24.patch
+  patch -Np1 -i ../gitlab-16.0.0-puma_worker_killer-gem-checksum.patch
 
   # GitLab tries to read its revision information from a file.
   git rev-parse --short HEAD > REVISION
 
-  patch -p1 < ../c971125953ed43e6014fafe05bbade6faa7a2b6d.patch
-
-  patch -p1 < ../fixes.patch
   patch -p1 < ../configs.patch
   # '/home/git' path in the config files indicates a default path that need to be adjusted
   grep -FqR '/home/git' config || exit 1
@@ -91,16 +91,6 @@ prepare() {
     sed -i "s|<APPDIR>|${_appdir}|g" "${srcdir}/${service_file}"
     sed -i "s|<LOGDIR>|${_logdir}|g" "${srcdir}/${service_file}"
   done
-
-  # https://github.com/bundler/bundler/issues/6882
-  sed -e '/BUNDLED WITH/,+1d' -i Gemfile.lock
-  bundle-2.7 lock --update=bundler-audit
-  # 'lock' adds 'BUNDLED WITH' back. Remove it again.
-  sed -e '/BUNDLED WITH/,+1d' -i Gemfile.lock
-  # https://gitlab.com/gitlab-org/gitlab/-/issues/376417
-  sed -e "/gem 'openssl', '2.2.2'/d" -i Gemfile
-  bundle-2.7 lock --update=webauthn
-  sed -e '/BUNDLED WITH/,+1d' -i Gemfile.lock
 }
 
 build() {
@@ -110,7 +100,7 @@ build() {
   # Gems will be installed into vendor/bundle
   bundle-2.7 config build.gpgme --use-system-libraries  # See https://bugs.archlinux.org/task/63654
   bundle-2.7 config force_ruby_platform true # some native gems are not available for newer ruby
-  bundle-2.7 install --jobs=$(nproc) --no-cache --deployment --without development test aws kerberos
+  BUNDLER_CHECKSUM_VERIFICATION_OPT_IN=1  bundle-2.7 install --jobs=$(nproc) --no-cache --deployment --without development test aws kerberos
 
   export CGO_CPPFLAGS="${CPPFLAGS}"
   export CGO_CFLAGS="${CFLAGS}"
