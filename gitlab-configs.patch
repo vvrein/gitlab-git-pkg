@@ -23,7 +23,7 @@ index b210b9c412b..da231c6153e 100644
      encoding: unicode
      database: gitlabhq_production
 -    username: git
-+    username: gitlib
++    username: gitlab
      password: "secure password"
      host: localhost
      # load_balancing:

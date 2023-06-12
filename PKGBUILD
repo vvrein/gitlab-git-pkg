@@ -10,7 +10,7 @@
 
 pkgname=gitlab
 pkgver=16.0.4
-pkgrel=1
+pkgrel=2
 pkgdesc='Project management and code hosting application'
 arch=(x86_64)
 url='https://gitlab.com/gitlab-org/gitlab-foss'
@@ -63,7 +63,7 @@ install=gitlab.install
 sha256sums=('SKIP'
             '56d90f25e158de823d3cb05b3164891cbe84169e82a5f4e4e7cde19f9c770063'
             'c62aeafd032cba7a3c318a76a16f03b80d60ad4db40702573604638e46b7ed65'
-            '1888a01cf85d1b5ff719549225f81f4975e1932ac5b865d605fb47992c61cca9'
+            '493463c1ac93275f076c3b24cb276f292e1ed3fc1396f8b632aeffbc30176759'
             '8cc4d933743906b4213b8ea8d8c5a62535e27e4073f73581a5dad40078dde000'
             'f1cec302a551de5e06a2651a1d24f9697fa4f8be08eede65af6b4c5774476591'
             '5531cf40d749dd039eb358c19563a4b4aa9829887c6cb0bacaab9e5a3260d7cf'
