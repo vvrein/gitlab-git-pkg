@@ -9,8 +9,8 @@
 # Contributor: loqs <bugs-archlinux@entropy-collector.net>
 
 pkgname=gitlab
-pkgver=16.0.4
-pkgrel=2
+pkgver=16.0.5
+pkgrel=1
 pkgdesc='Project management and code hosting application'
 arch=(x86_64)
 url='https://gitlab.com/gitlab-org/gitlab-foss'
