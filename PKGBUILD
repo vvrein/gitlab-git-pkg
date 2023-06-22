@@ -9,8 +9,8 @@
 # Contributor: loqs <bugs-archlinux@entropy-collector.net>
 
 pkgname=gitlab
-pkgver=16.0.5
-pkgrel=2
+pkgver=16.1.0
+pkgrel=1
 pkgdesc='Project management and code hosting application'
 arch=(x86_64)
 url='https://gitlab.com/gitlab-org/gitlab-foss'
@@ -43,8 +43,7 @@ backup=("etc/webapps/$pkgname/database.yml"
         "etc/logrotate.d/$pkgname")
 options=(!buildflags !debug)
 source=("git+$url.git#tag=v$pkgver"
-        "${url%-foss}/-/commit/5b9062832119599bf31ecca35e8fea74a9c1fe24.patch"
-        "$pkgname-16.0.0-puma_worker_killer-gem-checksum.patch"
+        "${url%-foss}/-/commit/b899702f585290b6a64c4762bf2bf2dffbd114c5.patch"
          https://github.com/grpc/grpc/pull/33408/commits/ffd057b399c1f68d43a68b960dd9bdf7a29fdd09.patch
         "$pkgname-configs.patch"
         "$pkgname-environment"
@@ -62,10 +61,9 @@ conflicts=(gitlab-workhorse)
 replaces=(gitlab-workhorse)
 install=gitlab.install
 sha256sums=('SKIP'
-            '56d90f25e158de823d3cb05b3164891cbe84169e82a5f4e4e7cde19f9c770063'
-            'c62aeafd032cba7a3c318a76a16f03b80d60ad4db40702573604638e46b7ed65'
+            'e30ba2112a7fe30c8b4644d4f08373987dcdd51c595d07bf03445a9bd093fae5'
             '51b1048cfa90fc9cc58193092837e85d8a81d6e73d52d48608d1e091f114c3f0'
-            '493463c1ac93275f076c3b24cb276f292e1ed3fc1396f8b632aeffbc30176759'
+            'e6f9c11f7cccc1b7c689af5cd10aa8fdda46c484e5764964da91c9ee4b080fed'
             '8cc4d933743906b4213b8ea8d8c5a62535e27e4073f73581a5dad40078dde000'
             'f1cec302a551de5e06a2651a1d24f9697fa4f8be08eede65af6b4c5774476591'
             '5531cf40d749dd039eb358c19563a4b4aa9829887c6cb0bacaab9e5a3260d7cf'
@@ -84,9 +82,9 @@ _logdir=/var/log/gitlab
 
 prepare() {
 	cd gitlab-foss
-	# Update grpc gem to v1.54.2 needed to build with gcc 13
-	patch -Np1 -i ../5b9062832119599bf31ecca35e8fea74a9c1fe24.patch
-	patch -Np1 -i ../$pkgname-16.0.0-puma_worker_killer-gem-checksum.patch
+	# Revert downgrade of gprc gem from v1.55.0 to v1.42.0 as the newer version is needed to build with gcc 13
+	# The issue the revert addresses is patched later in build()
+	patch -Rp1 -i ../b899702f585290b6a64c4762bf2bf2dffbd114c5.patch
 
 	# GitLab tries to read its revision information from a file.
 	git rev-parse --short HEAD > REVISION
@@ -119,7 +117,7 @@ build() {
 	BUNDLER_CHECKSUM_VERIFICATION_OPT_IN=1 bundle-2.7 install --jobs=$(nproc) --no-cache --deployment --without development test aws kerberos
 
 	# https://github.com/grpc/grpc/issues/33283
-	patch -Np1 -i "${srcdir}"/ffd057b399c1f68d43a68b960dd9bdf7a29fdd09.patch -d vendor/bundle/ruby/2.7.0/gems/grpc-1.54.2
+	patch -Np1 -i "${srcdir}"/ffd057b399c1f68d43a68b960dd9bdf7a29fdd09.patch -d vendor/bundle/ruby/2.7.0/gems/grpc-1.55.0
 
 	export CGO_CPPFLAGS="${CPPFLAGS}"
 	export CGO_CFLAGS="${CFLAGS}"
