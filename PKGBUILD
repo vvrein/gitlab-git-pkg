@@ -10,7 +10,7 @@
 
 pkgname=gitlab
 pkgver=16.0.5
-pkgrel=1
+pkgrel=2
 pkgdesc='Project management and code hosting application'
 arch=(x86_64)
 url='https://gitlab.com/gitlab-org/gitlab-foss'
@@ -45,6 +45,7 @@ options=(!buildflags !debug)
 source=("git+$url.git#tag=v$pkgver"
         "${url%-foss}/-/commit/5b9062832119599bf31ecca35e8fea74a9c1fe24.patch"
         "$pkgname-16.0.0-puma_worker_killer-gem-checksum.patch"
+         https://github.com/grpc/grpc/pull/33408/commits/ffd057b399c1f68d43a68b960dd9bdf7a29fdd09.patch
         "$pkgname-configs.patch"
         "$pkgname-environment"
         "$pkgname-puma.service"
@@ -63,6 +64,7 @@ install=gitlab.install
 sha256sums=('SKIP'
             '56d90f25e158de823d3cb05b3164891cbe84169e82a5f4e4e7cde19f9c770063'
             'c62aeafd032cba7a3c318a76a16f03b80d60ad4db40702573604638e46b7ed65'
+            '51b1048cfa90fc9cc58193092837e85d8a81d6e73d52d48608d1e091f114c3f0'
             '493463c1ac93275f076c3b24cb276f292e1ed3fc1396f8b632aeffbc30176759'
             '8cc4d933743906b4213b8ea8d8c5a62535e27e4073f73581a5dad40078dde000'
             'f1cec302a551de5e06a2651a1d24f9697fa4f8be08eede65af6b4c5774476591'
@@ -115,6 +117,9 @@ build() {
 	bundle-2.7 config build.gpgme --use-system-libraries # See https://bugs.archlinux.org/task/63654
 	bundle-2.7 config force_ruby_platform true # some native gems are not available for newer ruby
 	BUNDLER_CHECKSUM_VERIFICATION_OPT_IN=1 bundle-2.7 install --jobs=$(nproc) --no-cache --deployment --without development test aws kerberos
+
+	# https://github.com/grpc/grpc/issues/33283
+	patch -Np1 -i "${srcdir}"/ffd057b399c1f68d43a68b960dd9bdf7a29fdd09.patch -d vendor/bundle/ruby/2.7.0/gems/grpc-1.54.2
 
 	export CGO_CPPFLAGS="${CPPFLAGS}"
 	export CGO_CFLAGS="${CFLAGS}"
