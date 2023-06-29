@@ -18,7 +18,7 @@ license=(MIT)
 depends=(git
          gitlab-gitaly
          http-parser
-         icu
+         icu libicui18n.so libicuuc.so
          libxslt
          nodejs
          openssh
