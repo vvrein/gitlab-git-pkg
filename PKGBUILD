@@ -9,7 +9,7 @@
 # Contributor: loqs <bugs-archlinux@entropy-collector.net>
 
 pkgname=gitlab
-pkgver=16.1.1
+pkgver=16.1.2
 pkgrel=1
 pkgdesc='Project management and code hosting application'
 arch=(x86_64)
