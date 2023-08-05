@@ -4,8 +4,8 @@ Requires=gitlab-puma.service
 After=gitlab-puma.service
 
 [Service]
-User=gitlab
-Group=gitlab
+User=git
+Group=git
 WorkingDirectory=/usr/share/webapps/gitlab
 SyslogIdentifier=gitlab-workhorse
 CapabilityBoundingSet=

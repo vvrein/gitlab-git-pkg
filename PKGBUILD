@@ -9,7 +9,7 @@
 # Contributor: loqs <bugs-archlinux@entropy-collector.net>
 
 pkgname=gitlab
-pkgver=16.1.2
+pkgver=16.2.3
 pkgrel=1
 pkgdesc='Project management and code hosting application'
 arch=(x86_64)
@@ -26,7 +26,7 @@ depends=(git
          perl-image-exiftool
          re2
          redis
-         ruby2.7)
+         ruby)
 makedepends=(cmake
              go
              nodejs
@@ -43,8 +43,6 @@ backup=("etc/webapps/$pkgname/database.yml"
         "etc/logrotate.d/$pkgname")
 options=(!buildflags !debug)
 source=("git+$url.git#tag=v$pkgver"
-        "${url%-foss}/-/commit/b899702f585290b6a64c4762bf2bf2dffbd114c5.patch"
-         https://github.com/grpc/grpc/pull/33408/commits/ffd057b399c1f68d43a68b960dd9bdf7a29fdd09.patch
         "$pkgname-configs.patch"
         "$pkgname-environment"
         "$pkgname-puma.service"
@@ -55,25 +53,25 @@ source=("git+$url.git#tag=v$pkgver"
         "$pkgname-backup.timer"
         "$pkgname.target"
         "$pkgname.tmpfiles.d"
-        "$pkgname.logrotate")
+        "$pkgname.logrotate"
+        "gemfile.patch")
 provides=(gitlab-workhorse) # FS78036
 conflicts=(gitlab-workhorse)
 replaces=(gitlab-workhorse)
 install=gitlab.install
 sha256sums=('SKIP'
-            'e30ba2112a7fe30c8b4644d4f08373987dcdd51c595d07bf03445a9bd093fae5'
-            '51b1048cfa90fc9cc58193092837e85d8a81d6e73d52d48608d1e091f114c3f0'
-            'e6f9c11f7cccc1b7c689af5cd10aa8fdda46c484e5764964da91c9ee4b080fed'
+            '87965cd99420b5b9acad08b9cd7aa6e19ad18f81b41e19ee4bd5c8c4506d9681'
             '8cc4d933743906b4213b8ea8d8c5a62535e27e4073f73581a5dad40078dde000'
-            'f1cec302a551de5e06a2651a1d24f9697fa4f8be08eede65af6b4c5774476591'
-            '5531cf40d749dd039eb358c19563a4b4aa9829887c6cb0bacaab9e5a3260d7cf'
-            'ae6617b3a0d0808684cb1fff9cfbfa46f6f847baba61fdfa7ebf458cb2890e6f'
-            'ff4496eaff0fb47aa0fa10ca08a08257291566a8dbe0566570f493053da04f6b'
-            '7581d07e650c112a06af4a52ab9cf3bf0deb11564d734d5adabcdb537140f1c0'
+            '20fb734203ee13530b4c1038dd197a7584657302cb783288f8055059529d80d8'
+            '22c9c255552eeb7c3dc457438aaa0b0782172eeb12c3d419b34040a3f1e95eae'
+            '91fa21253c32ad4a68fb2bd5051a0d0d2756b4efd3b59cdf16d4bb8e77d3f886'
+            '90bbbf991490bfe350a3c18c939377eccd1011c1193f004ef08d0e4435457276'
+            '41bb959e861252e130206e170a1f38dc77e270a951062b0513826de253eabc15'
             '869b3e682e9fb26551a19c0cd0b200a6fdb594396f325e237d58e1a8a8a96f73'
             '6c96a5d20c03bd626d9408cb1e41ab131d67610be586475af17c1e52e27ec697'
-            '84614a2bfbd734f09c2c91531dd3c13e795186b50c0780a120c8e5bc2a892607'
-            '13e4588b62ebaa6b410c2192cafbd2b9f2c99b8fff7b02782c2968c8256f762a')
+            '35858f5a4db0ab703e0099dd25f71910b2253e73eb65fdaec89bf5ab64d008e9'
+            '13e4588b62ebaa6b410c2192cafbd2b9f2c99b8fff7b02782c2968c8256f762a'
+            'SKIP')
 
 _appdir=/usr/share/webapps/gitlab # the app source code location
 _etcdir=/etc/webapps/gitlab
@@ -82,14 +80,13 @@ _logdir=/var/log/gitlab
 
 prepare() {
 	cd gitlab-foss
-	# Revert downgrade of gprc gem from v1.55.0 to v1.42.0 as the newer version is needed to build with gcc 13
-	# The issue the revert addresses is patched later in build()
-	patch -Rp1 -i ../b899702f585290b6a64c4762bf2bf2dffbd114c5.patch
 
 	# GitLab tries to read its revision information from a file.
 	git rev-parse --short HEAD > REVISION
 
 	patch -p1 -i ../$pkgname-configs.patch
+	patch -p1 -i ../gemfile.patch
+
 	# '/home/git' path in the config files indicates a default path that need to be adjusted
 	grep -FqR '/home/git' config || exit 1
 
@@ -112,12 +109,8 @@ build() {
 
 	echo "Fetching bundled gems..."
 	# Gems will be installed into vendor/bundle
-	bundle-2.7 config build.gpgme --use-system-libraries # See https://bugs.archlinux.org/task/63654
-	bundle-2.7 config force_ruby_platform true # some native gems are not available for newer ruby
-	BUNDLER_CHECKSUM_VERIFICATION_OPT_IN=1 bundle-2.7 install --jobs=$(nproc) --no-cache --deployment --without development test aws kerberos
 
-	# https://github.com/grpc/grpc/issues/33283
-	patch -Np1 -i "${srcdir}"/ffd057b399c1f68d43a68b960dd9bdf7a29fdd09.patch -d vendor/bundle/ruby/2.7.0/gems/grpc-1.55.0
+	BUNDLER_CHECKSUM_VERIFICATION_OPT_IN=1 bundle install --jobs=$(nproc) --deployment --without development test aws kerberos
 
 	export CGO_CPPFLAGS="${CPPFLAGS}"
 	export CGO_CFLAGS="${CFLAGS}"
@@ -127,8 +120,8 @@ build() {
 	make -C workhorse
 
 	yarn install --production --pure-lockfile
-	bundle-2.7 exec rake gettext:compile RAILS_ENV=production NODE_ENV=production USE_DB=false SKIP_STORAGE_VALIDATION=true NODE_OPTIONS="--max_old_space_size=3584"
-	bundle-2.7 exec rake gitlab:assets:compile RAILS_ENV=production NODE_ENV=production USE_DB=false SKIP_STORAGE_VALIDATION=true NODE_OPTIONS="--max_old_space_size=3584"
+	bundle exec rake gettext:compile RAILS_ENV=production NODE_ENV=production USE_DB=false SKIP_STORAGE_VALIDATION=true NODE_OPTIONS="--max_old_space_size=3584"
+	bundle exec rake gitlab:assets:compile RAILS_ENV=production NODE_ENV=production USE_DB=false SKIP_STORAGE_VALIDATION=true NODE_OPTIONS="--max_old_space_size=3584"
 }
 
 package() {
@@ -153,14 +146,14 @@ package() {
 	install -Dm755 "workhorse/gitlab-zip-cat" "${pkgdir}/usr/bin/gitlab-zip-cat"
 	install -Dm755 "workhorse/gitlab-zip-metadata" "${pkgdir}/usr/bin/gitlab-zip-metadata"
 
-	install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}"
-	install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/satellites"
-	install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/shared/"{,artifacts,lfs-objects}
-	install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/builds"
-	install -dm700 -o 105 -g 105 "${pkgdir}${_datadir}/uploads"
-	install -dm750 -o 105 -g 105 "${pkgdir}${_datadir}/backups"
-	install -dm755 -o 105 -g 105 "${pkgdir}${_etcdir}"
-	install -dm755 -o 105 -g 105 "${pkgdir}${_logdir}"
+	install -dm750 "${pkgdir}${_datadir}"
+	install -dm750 "${pkgdir}${_datadir}/satellites"
+	install -dm750 "${pkgdir}${_datadir}/shared/"{,artifacts,lfs-objects}
+	install -dm750 "${pkgdir}${_datadir}/builds"
+	install -dm700 "${pkgdir}${_datadir}/uploads"
+	install -dm750 "${pkgdir}${_datadir}/backups"
+	install -dm755 "${pkgdir}${_etcdir}"
+	install -dm755 "${pkgdir}${_logdir}"
 	install -dm755 "${pkgdir}/usr/share/doc/gitlab"
 
 	rm -r "${pkgdir}${_appdir}"/{.git,builds,tmp,log,shared}
@@ -198,7 +191,7 @@ package() {
 	for secret_file in smtp_settings.rb; do
 		chmod 660 "${pkgdir}${_etcdir}/${secret_file}"
 		# TODO: should we just leave the secret files root owned?
-		chown root:105 "${pkgdir}${_etcdir}/${secret_file}"
+		chown root:root "${pkgdir}${_etcdir}/${secret_file}"
 	done
 
 	install -Dm644 "${srcdir}/$pkgname-environment" "${pkgdir}${_appdir}/environment"
@@ -208,7 +201,7 @@ package() {
 	install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/gitlab/LICENSE"
 
 	# TODO: structure.sql looks more like an application data and should be stored under /var/lib/gitlab
-	chown 105:105 "${pkgdir}${_appdir}/db/structure.sql"
+	#chown 105:105 "${pkgdir}${_appdir}/db/structure.sql"
 
 	# Install systemd service files
 	for service_file in gitlab-puma.service gitlab-sidekiq.service gitlab-backup.service gitlab-backup.timer gitlab.target gitlab-mailroom.service gitlab-workhorse.service; do

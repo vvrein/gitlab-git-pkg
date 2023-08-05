@@ -1,1 +1,1 @@
-d /run/gitlab 0775 gitlab gitlab - -
+d /run/gitlab 0775 git git - -

@@ -6,13 +6,13 @@ After=gitlab-puma.service
 StartLimitIntervalSec=100s
 
 [Service]
-User=gitlab
-Group=gitlab
+User=git
+Group=git
 WorkingDirectory=<APPDIR>
 EnvironmentFile=<APPDIR>/environment
 SyslogIdentifier=gitlab-mailroom
 PIDFile=/run/gitlab/mailroom.pid
-ExecStart=/usr/bin/bundle-2.7 exec mail_room -q -c <APPDIR>/config/mail_room.yml
+ExecStart=/usr/bin/bundle exec mail_room -q -c <APPDIR>/config/mail_room.yml
 ExecStop=/usr/bin/kill -QUIT $MAINPID
 Restart=on-failure
 RestartSec=1

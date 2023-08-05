@@ -18,15 +18,6 @@ diff --git a/config/database.yml.postgresql b/config/database.yml.postgresql
 index b210b9c412b..19c33fdd1f5 100644
 --- a/config/database.yml.postgresql
 +++ b/config/database.yml.postgresql
-@@ -6,7 +6,7 @@ production:
-     adapter: postgresql
-     encoding: unicode
-     database: gitlabhq_production
--    username: git
-+    username: gitlab
-     password: "secure password"
-     host: localhost
-     # load_balancing:
 @@ -18,21 +18,6 @@ production:
      #     port: 8600
      #     record: secondary.postgresql.service.consul
@@ -92,8 +83,7 @@ index b210b9c412b..19c33fdd1f5 100644
 -    adapter: postgresql
 -    encoding: unicode
 -    database: gitlabhq_geo_staging
--    username: git
-+    username: gitlab
+     username: git
      password: "secure password"
      host: localhost
  
@@ -130,15 +120,6 @@ diff --git a/config/gitlab.yml.example b/config/gitlab.yml.example
 index 7968d46dad4..ab76b169d55 100644
 --- a/config/gitlab.yml.example
 +++ b/config/gitlab.yml.example
-@@ -91,7 +91,7 @@ production: &base
-       #- 2001:0db8::/32
- 
-     # Uncomment and customize if you can't use the default user to run GitLab (default: 'git')
--    # user: git
-+    user: gitlab
- 
-     ## Date & Time settings
-     # Uncomment and customize if you want to change the default time zone of GitLab application.
 @@ -111,15 +111,15 @@ production: &base
        # enabled: false
        # S/MIME private key file in PEM format, unencrypted
