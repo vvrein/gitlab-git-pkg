@@ -110,7 +110,9 @@ build() {
 	echo "Fetching bundled gems..."
 	# Gems will be installed into vendor/bundle
 
-	BUNDLER_CHECKSUM_VERIFICATION_OPT_IN=1 bundle install --jobs=$(nproc) --deployment --without development test aws kerberos
+	bundle config set --local deployment 'true'
+	bundle config set --local without 'development test aws kerberos'
+	BUNDLER_CHECKSUM_VERIFICATION_OPT_IN=1 bundle install --jobs=$(nproc)
 
 	export CGO_CPPFLAGS="${CPPFLAGS}"
 	export CGO_CFLAGS="${CFLAGS}"

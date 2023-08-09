@@ -8,6 +8,9 @@ post_install() {
     echo "Finally run the following commands to check your installation:"
     echo "$ (cd /usr/share/webapps/gitlab && sudo -u gitlab \$(cat environment | xargs) bundle exec rake gitlab:env:info)"
     echo "$ (cd /usr/share/webapps/gitlab && sudo -u gitlab \$(cat environment | xargs) bundle exec rake gitlab:check)"
+    chown git:git -R /var/lib/gitlab
+    chown git:git -R /etc/webapps/gitlab
+    chown git:git -R /var/log/gitlab
 }
 
 post_upgrade() {
